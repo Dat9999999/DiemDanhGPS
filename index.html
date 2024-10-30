@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu cầu vị trí GPS</title>
+</head>
+
+<body>
+    <h1>Yêu cầu quyền truy cập GPS</h1>
+    <button onclick="getLocation()">Lấy vị trí của tôi</button>
+    <p id="location-info"></p>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendPosition, showError);
+            } else {
+                document.getElementById("location-info").innerHTML = "Trình duyệt của bạn không hỗ trợ GPS.";
+            }
+        }
+
+        function sendPosition(position) {
+            let latitude = position.coords.latitude;
+            let longitude = position.coords.longitude;
+            document.getElementById("location-info").innerHTML =
+                "Vĩ độ: " + latitude + "<br>Kinh độ: " + longitude;
+
+            // Gửi tọa độ đến ứng dụng Windows Forms
+            fetch('http://localhost:5000/api/location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    latitude: latitude,
+                    longitude: longitude
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Vị trí đã được gửi thành công:", data);
+                })
+                .catch(error => {
+                    console.error("Có lỗi khi gửi vị trí:", error);
+                });
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("location-info").innerHTML = "Người dùng từ chối cung cấp vị trí.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("location-info").innerHTML = "Thông tin vị trí không khả dụng.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("location-info").innerHTML = "Yêu cầu lấy vị trí bị hết thời gian.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById("location-info").innerHTML = "Lỗi không xác định.";
+                    break;
+            }
+        }
+    </script>
+</body>
+
+</html>
