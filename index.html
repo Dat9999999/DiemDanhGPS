@@ -18,7 +18,6 @@
                 navigator.geolocation.getCurrentPosition(sendPosition, useIPForLocation);
             } else {
                 document.getElementById("location-info").innerHTML = "Trình duyệt không hỗ trợ GPS.";
-                useIPForLocation();
             }
         }
 
@@ -48,30 +47,6 @@
                 });
         }
 
-        function useIPForLocation() {
-            fetch("https://ipinfo.io/json?token=YOUR_IPINFO_TOKEN")
-                .then(response => response.json())
-                .then(data => {
-                    const [latitude, longitude] = data.loc.split(",");
-                    document.getElementById("location-info").innerHTML =
-                        "Vĩ độ từ IP: " + latitude + "<br>Kinh độ từ IP: " + longitude;
-
-                    // Gửi tọa độ về server để điểm danh
-                    fetch('http://localhost:5000/api/attendance', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            latitude: parseFloat(latitude),
-                            longitude: parseFloat(longitude)
-                        })
-                    });
-                })
-                .catch(error => {
-                    console.error("Lỗi khi lấy vị trí từ IP:", error);
-                });
-        }
     </script>
 </body>
 
